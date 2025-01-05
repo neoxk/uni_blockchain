@@ -1,5 +1,8 @@
 package network;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
@@ -7,18 +10,23 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Server implements MessageHandler{
+    @Getter
     private int port;
     private boolean running;
     private ServerSocket serverSocket;
-    private ArrayList<ClientHandler> clients;
+    private ArrayList<ClientHandler> clients = new ArrayList<>();
+    private ArrayList<Connection> connections = new ArrayList<>();
+
+    @Setter
+    private MessageHandler msgHander;
     public Server(int tryPort) {
         this.port = tryPort;
+        serverSocket = createServerSocket();
     }
 
     public void start() {
         running = true;
         new Thread(() -> {
-            serverSocket = createServerSocket();
             while (running) {
                 try {
                     Socket newClient = serverSocket.accept();
@@ -31,6 +39,23 @@ public class Server implements MessageHandler{
         }).start();
     }
 
+    public boolean connectTo(int port) {
+       try {
+            Connection connection = new Connection(port, new MessageHandler() {
+                @Override
+                public void handleMessage(byte[] msg) {
+                    System.out.println(msg);
+                }
+            });
+
+            connections.add(connection);
+            return true;
+
+       } catch (IOException e) {
+           return false;
+       }
+    }
+
 
     private ServerSocket createServerSocket() {
         ServerSocket socket;
@@ -38,6 +63,7 @@ public class Server implements MessageHandler{
         while (true) {
             try {
                 socket = new ServerSocket(this.port);
+                System.out.println(this.port);
                 return socket;
             } catch (BindException e) {
                 this.port++;
@@ -52,11 +78,8 @@ public class Server implements MessageHandler{
         running = false;
     }
 
-    public int getPort() {
-        return this.port;
-    }
 
     public void handleMessage(byte[] message) {
-
+        System.out.println(message + "received");
     }
 }

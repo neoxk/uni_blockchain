@@ -22,7 +22,6 @@ public class ClientHandler {
             throw new RuntimeException(e);
         }
         this.connected = true;
-        System.out.println("New connection: " + client.getPort() + "->" + server.getPort());
 
         read();
     }
@@ -45,14 +44,5 @@ public class ClientHandler {
                 }
             }
         }).start();
-    }
-
-    public void send(byte[] msg) {
-        try {
-            outStream.write(msg);
-            outStream.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
