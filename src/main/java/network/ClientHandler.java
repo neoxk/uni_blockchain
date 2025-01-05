@@ -1,7 +1,10 @@
 package network;
 
+import blockchain.Blockchain;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
@@ -30,16 +33,12 @@ public class ClientHandler {
         new Thread(() -> {
             while (connected) {
                 try {
-                    byte[] buff = new byte[2048];
-                    int bytesRead = this.inStream.read(buff);
-                    if (bytesRead == -1) {
-                        connected = false;
-                        break;
-                    }
-
-                    byte[] msg = Arrays.copyOf(buff, bytesRead);
-                    this.server.handleMessage(msg);
+                    ObjectInputStream ois = new ObjectInputStream(this.inStream);
+                    Blockchain blockchain = (Blockchain) ois.readObject();
+                    this.server.handleMessage(blockchain);
                 } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }

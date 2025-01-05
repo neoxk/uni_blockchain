@@ -1,6 +1,8 @@
 package network;
 
+import blockchain.Blockchain;
+
 public interface MessageHandler {
-    void handleMessage(byte[] msg);
+    void handleMessage(Blockchain blk);
 
 }

@@ -1,7 +1,10 @@
 package blockchain;
 
 import lombok.Setter;
+import ui.Logger;
+import ui.Utils;
 
+import java.awt.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -13,12 +16,18 @@ public class Miner {
     public MinedBlock mine(Block block) {
         byte[] curr_hash = new byte[]{1, 2, 3};
         int nonce = -1;
+        int counter = 0;
 
         while (!hashIsValid(curr_hash, block.getDiff())) {
+            if (counter >= 200000) {
+                Logger.log(Utils.convertByteToHexadecimal(curr_hash), Color.RED);
+                counter = 0;
+            }
             nonce++;
             curr_hash = calcHash(block, nonce);
-            System.out.println(Arrays.toString(curr_hash));
+            counter++;
         }
+        Logger.log(Utils.convertByteToHexadecimal(curr_hash), Color.GREEN);
 
         return new MinedBlock(block, nonce, curr_hash);
     }

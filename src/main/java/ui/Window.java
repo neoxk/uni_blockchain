@@ -65,14 +65,13 @@ public class Window extends JFrame{
     public void addLogMsg(String msg, Color color) {
         SwingUtil.appendToTextPane(logPane, msg + "\n", color);
     }
-    public void addLogMsg(String msg) {}
 
-    public void addLedgerMsg(String msg) {
-        SwingUtil.appendToTextPane(ledgerPane, msg + "\n", Color.BLACK);
-    }
+    public void clearLedger() {ledgerPane.setText("");}
+
     public void addLedgerMsg(String msg, Color color) {
-
+        SwingUtil.appendToTextPane(ledgerPane, msg + "\n", color);
     }
+
 
 }
 

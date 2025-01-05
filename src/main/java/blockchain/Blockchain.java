@@ -2,15 +2,16 @@ package blockchain;
 
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Blockchain {
+public class Blockchain implements Serializable {
     @Getter
     private ArrayList<MinedBlock> blocks;
     private int DIFF_CORRECTION_INTERVAL = 100;
     private int BLOCK_GEN_TIME = 10;
-    private int STARTING_DIFF = 2;
+    private int STARTING_DIFF = 3;
 
     @Getter
     private int curr_diff = STARTING_DIFF;
@@ -52,23 +53,32 @@ public class Blockchain {
         if (timeDiff / 2 > expectedTime) curr_diff--;
     }
 
-    public void newBlocks(ArrayList<MinedBlock> newBlocks) {
-        int newCommDiff = 0;
-        for (int i = 0; i < newBlocks.size(); i++) {
-            newCommDiff += 2^newBlocks.get(i).getDiff();
-        }
-
-        int myCommDiff = 0;
-        for (int i = 0; i < blocks.size(); i++) {
-            myCommDiff += 2^blocks.get(i).getDiff();
-        }
-
-        if (newCommDiff > myCommDiff) blocks = newBlocks;
-    }
 
     public Block getGenesisBlock() {
         return new Block(0, "Genesis Block", System.currentTimeMillis() / 1000L, STARTING_DIFF, new byte[32], "null");
     }
+
+    public boolean shouldReplace(Blockchain oldblk) {
+        for (int i = 0; i < oldblk.getBlocks().size(); i++) {
+            MinedBlock block = oldblk.getBlocks().get(i);
+            if (!Arrays.equals(block.getHash(), Miner.calcHash(block, block.getNonce()))) return false;
+        }
+
+
+        int myCommDiff = 0;
+        for (int i = 0; i < oldblk.getBlocks().size(); i++) {
+            myCommDiff += 2^oldblk.getBlocks().get(i).getDiff();
+        }
+
+        int newCommDiff = 0;
+        for (int i = 0; i < blocks.size(); i++) {
+            newCommDiff += 2^blocks.get(i).getDiff();
+        }
+
+        if (newCommDiff > myCommDiff) return true;
+        else return false;
+    }
+
 
 }
 

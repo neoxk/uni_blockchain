@@ -1,9 +1,11 @@
 package network;
 
+import blockchain.Blockchain;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,9 +45,10 @@ public class Server implements MessageHandler{
        try {
             Connection connection = new Connection(port, new MessageHandler() {
                 @Override
-                public void handleMessage(byte[] msg) {
-                    System.out.println(msg);
+                public void handleMessage(Blockchain blk) {
+
                 }
+
             });
 
             connections.add(connection);
@@ -78,8 +81,18 @@ public class Server implements MessageHandler{
         running = false;
     }
 
-
-    public void handleMessage(byte[] message) {
-        System.out.println(message + "received");
+    public void broadcast(Blockchain blockchain) {
+        connections.forEach(conn -> {
+            try {
+                conn.send(blockchain);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
+
+    public void handleMessage(Blockchain blk) {
+        this.msgHander.handleMessage(blk);
+    }
+
 }
